@@ -1,5 +1,7 @@
-import os, apache_beam as beam
+import argparse, sys, os
+import apache_beam as beam
 from apache_beam.io.mongodbio import WriteToMongoDB
+from apache_beam.options.pipeline_options import PipelineOptions
 
 
 col_indexes = {
@@ -70,19 +72,24 @@ def standardize_empty_numeric_field(record, field_indexes):
     return record
 
 
-if __name__ == "__main__":
-    db_user, db_pass, db_host = os.getenv("DB_USER"), os.getenv("DB_PASSWORD"), os.getenv("DB_HOST")
+def main():
+    """
+        Entry point of the Beam application
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--db_user', required=True)
+    parser.add_argument('--db_pass', required=True)
+    parser.add_argument('--db_host', required=True)
+    parser.add_argument('--input', default='cars.csv')
+    args, beam_args = parser.parse_known_args(sys.argv)
 
-    if not db_user or not db_pass or not db_host:
-        print(db_user, db_pass, db_host)
-        raise Exception("No database credentials found!")
+    with beam.Pipeline(argv=beam_args) as pipeline:
+        data_input = args.input
+        db_uri = f"mongodb+srv://{args.db_user}:{args.db_pass}@{args.db_host}"
 
-    db_uri = f"mongodb+srv://{db_user}:{db_pass}@{db_host}"
-
-    with beam.Pipeline() as pipeline:
         print("Obtaining clean data")
         cars_data = (pipeline
-            | "Read input" >> beam.io.ReadFromText('cars.csv')
+            | "Read input" >> beam.io.ReadFromText(data_input)
             | "Filter out headers" >> beam.ParDo(FilterOutHeader('make'))
             | "Remove duplicates" >> beam.Distinct()
             | "Split by separator" >> beam.Map(lambda line: line.split(','))
@@ -106,3 +113,6 @@ if __name__ == "__main__":
         print(sink_invalid)
 
     print("Finished")
+
+if __name__ == "__main__":
+    main()

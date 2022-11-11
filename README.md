@@ -8,6 +8,8 @@ It uses the [Belarus Used Cars Prices](https://www.kaggle.com/datasets/slavapase
 
 Create a virtual environment and install the `apache_beam` and `dnspython` dependencies with PIP
 
-Set the `DB_USER`, `DB_PASSWORD`, and `DB_HOST` environment variables
+Run the `main.py` script using
 
-Run the `main.py` script
+`python main.py --db_user=<database user> --db_pass=<database password> --db_host=<database host>`
+
+Optionally, the input can be specified using the `--input=<path to input data>` argument
