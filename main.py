@@ -1,5 +1,7 @@
 import apache_beam as beam
 
+PRICE_IDX = 2
+
 class FilterOutHeader(beam.DoFn):
     """
         DoFn that only returns elements that don't match with the CSV header
@@ -18,11 +20,11 @@ class FilterOutHeader(beam.DoFn):
 if __name__ == "__main__":
     with beam.Pipeline() as pipeline:
         cars_data = (pipeline 
-            | "Read Input" >> beam.io.ReadFromText('cars.csv')
+            | "Read input" >> beam.io.ReadFromText('cars.csv')
             | "Filter out headers" >> beam.ParDo(FilterOutHeader('make'))
-            | "Split by Separator" >> beam.Map(lambda line: line.split(','))
-            | "Display Expensive" >> beam.Filter(lambda record: int(record[2]) > 100000)
+            | "Split by separator" >> beam.Map(lambda line: line.split(','))
+            | "Display expensive" >> beam.Filter(lambda record: int(record[PRICE_IDX]) > 100000)
             | "Join data" >> beam.Map(lambda record: ','.join(record))
-            | "Print" >> beam.io.WriteToText('salida.txt'))
+            | "Output to file" >> beam.io.WriteToText('salida.txt'))
         
         print(cars_data)
