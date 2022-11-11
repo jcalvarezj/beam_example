@@ -1,0 +1,5 @@
+venv/
+drafts/
+__pycache__/
+salida*
+beam-temp*/
