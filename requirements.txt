@@ -1,0 +1,4 @@
+apache-beam==2.42.0
+dnspython==2.2.1
+google-api-python-client==2.65.0
+pymongo==3.13.0

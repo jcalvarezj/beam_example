@@ -1,0 +1,2 @@
+gcloud builds submit --tag ${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/${GCP_ARTIFACT_REPO}/dataflow/cars-etl:latest . &&
+gcloud dataflow flex-template build gs://${GCP_BUCKET}/dataflow_templates/cars-etl.json --image "${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/${GCP_ARTIFACT_REPO}/dataflow/cars-etl:latest" --sdk-language "PYTHON"

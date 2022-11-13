@@ -4,20 +4,16 @@ from apache_beam.io.mongodbio import WriteToMongoDB
 from apache_beam.options.pipeline_options import PipelineOptions
 
 
-col_indexes = {
-    "make": 0,
-    "model": 1,
-    "price": 2,
-    "year": 3,
-    "condition": 4,
-    "mileage": 5,
-    "fuel_type": 6,
-    "volume": 7,
-    "color": 8,
-    "transmission": 9,
-    "drive_unit": 10,
-    "segment": 11
-}
+class CustomPipelineOptions(PipelineOptions):
+    """
+    Runtime arguments used to include database connection data
+    """
+    @classmethod
+    def _add_argparse_args(cls, parser):
+        parser.add_value_provider_argument('--input')
+        parser.add_value_provider_argument('--db_user')
+        parser.add_value_provider_argument('--db_pass')
+        parser.add_value_provider_argument('--db_host')
 
 
 class FilterOutHeader(beam.DoFn):
@@ -43,7 +39,7 @@ def dehyphenate(record):
     return record
 
 
-def convert_to_dict(line_fields):
+def convert_to_dict(line_fields, col_indexes):
     """
         Transforms the line_fields element to a dictionary
     """
@@ -76,14 +72,32 @@ def main():
     """
         Entry point of the Beam application
     """
+    col_indexes = {
+        "make": 0,
+        "model": 1,
+        "price": 2,
+        "year": 3,
+        "condition": 4,
+        "mileage": 5,
+        "fuel_type": 6,
+        "volume": 7,
+        "color": 8,
+        "transmission": 9,
+        "drive_unit": 10,
+        "segment": 11
+    }
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--db_user', required=True)
     parser.add_argument('--db_pass', required=True)
     parser.add_argument('--db_host', required=True)
     parser.add_argument('--input', default='cars.csv')
-    args, beam_args = parser.parse_known_args(sys.argv)
+    args, pipeline_args = parser.parse_known_args(sys.argv)
 
-    with beam.Pipeline(argv=beam_args) as pipeline:
+    pipeline_options = PipelineOptions(pipeline_args)
+    custom_options = pipeline_options.view_as(CustomPipelineOptions)
+
+    with beam.Pipeline(options=custom_options) as pipeline:
         data_input = args.input
         db_uri = f"mongodb+srv://{args.db_user}:{args.db_pass}@{args.db_host}"
 
@@ -93,7 +107,7 @@ def main():
             | "Filter out headers" >> beam.ParDo(FilterOutHeader('make'))
             | "Remove duplicates" >> beam.Distinct()
             | "Split by separator" >> beam.Map(lambda line: line.split(','))
-            | "Convert to dict" >> beam.Map(convert_to_dict)
+            | "Convert to dict" >> beam.Map(convert_to_dict, col_indexes)
             | "Filter expensive" >> beam.Filter(lambda record: int(record["price"]) >= 7000)
             | "Clean volume data" >> beam.Map(standardize_empty_numeric_field, ["volume"])
             | "De-hyphenate" >> beam.Map(dehyphenate))
