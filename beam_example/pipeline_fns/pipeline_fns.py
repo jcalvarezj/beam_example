@@ -12,26 +12,18 @@ def convert_to_dict(line_fields, col_indexes):
     """
         Transforms the line_fields element to a dictionary
     """
+    volume = line_fields[col_indexes["volume"]]
     return {
         "make": line_fields[col_indexes["make"]],
         "model": line_fields[col_indexes["model"]],
-        "price": float(line_fields[col_indexes["price"]]),
+        "price": int(line_fields[col_indexes["price"]]),
         "year": int(line_fields[col_indexes["year"]]),
         "condition": line_fields[col_indexes["condition"]],
         "mileage": float(line_fields[col_indexes["mileage"]]),
         "fuel_type": line_fields[col_indexes["fuel_type"]],
-        "volume": line_fields[col_indexes["volume"]],
+        "volume": float(volume) if volume != "" and volume != "nan" else None,
         "color": line_fields[col_indexes["color"]],
         "transmission": line_fields[col_indexes["transmission"]],
         "drive_unit": line_fields[col_indexes["drive_unit"]],
         "segment": line_fields[col_indexes["segment"]]
     }
-
-
-def standardize_empty_numeric_field(record, field_indexes):
-    """
-        Inserts "None" to the field if it's empty or has a "NaN" value
-    """
-    for i in field_indexes:
-        record[i] = float(record[i]) if record[i] != "" and record[i].lower() != "nan" else None
-    return record

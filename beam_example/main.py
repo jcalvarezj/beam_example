@@ -1,6 +1,6 @@
 # Entry point
 
-import argparse, sys
+import argparse, sys, time
 import apache_beam as beam
 from apache_beam.io.gcp.internal.clients import bigquery
 from apache_beam.io import ReadFromText, WriteToBigQuery
@@ -69,18 +69,19 @@ def main():
             "fields": [
                 {"name": "make", "type": "STRING", "mode": "REQUIRED"},
                 {"name": "model", "type": "STRING", "mode": "REQUIRED"},
-                {"name": "price", "type": "NUMERIC", "mode": "REQUIRED"},
+                {"name": "price", "type": "INTEGER", "mode": "REQUIRED"},
                 {"name": "year", "type": "INTEGER", "mode": "REQUIRED"},
                 {"name": "condition", "type": "STRING", "mode": "REQUIRED"},
                 {"name": "mileage", "type": "NUMERIC", "mode": "REQUIRED"},
                 {"name": "fuel_type", "type": "STRING", "mode": "REQUIRED"},
-                {"name": "volume", "type": "NUMERIC", "mode": "NULLABLE"},
+                {"name": "volume", "type": "STRING", "mode": "NULLABLE"},
                 {"name": "transmission", "type": "STRING", "mode": "REQUIRED"},
                 {"name": "drive_unit", "type": "STRING", "mode": "REQUIRED"},
                 {"name": "bonus_type", "type": "STRING", "mode": "REQUIRED"},
                 {"name": "bonus_price", "type": "INTEGER", "mode": "REQUIRED"}
             ]
         }
+        # bq_table_schema = "SCHEMA_AUTODETECT"
         bq_temp_location = "gs://" + args.gcp_bucket_id + "/tmp"
 
         print("Obtaining MongoDB bonus prices table data")
@@ -98,8 +99,7 @@ def main():
             | "Remove duplicates" >> beam.Distinct()
             | "Split by separator" >> beam.Map(lambda line: line.split(','))
             | "Convert to dict" >> beam.Map(convert_to_dict, col_indexes)
-            | "Filter expensive" >> beam.Filter(lambda record: int(record["price"]) >= 7000)
-            | "Clean volume data" >> beam.Map(standardize_empty_numeric_field, ["volume"])
+            | "Filter expensive" >> beam.Filter(lambda record: record["price"] >= 7000 and record["volume"] != None)
             | "De-hyphenate" >> beam.Map(dehyphenate))
         
         print("Enriching valid cars data")
@@ -138,4 +138,13 @@ def main():
     print("Finished")
 
 if __name__ == "__main__":
-    main()
+    print("Starting ETL pipeline")
+    start = time.time()
+    try:
+        main()
+    except Exception as e:
+        print("An error occurred when processing the pipeline")
+        print(e)
+    finally:
+        end = time.time()
+        print(f"Pipeline execution lasted {end - start} seconds")
