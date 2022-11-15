@@ -10,13 +10,21 @@ Create a virtual environment and install the `apache_beam` and `dnspython` depen
 
 To run locally, execute the `main.py` script using
 
-`python main.py --db_user=<database user> --db_pass=<database password> --db_host=<database host>`
+`python main.py <arguments>`
 
-Optionally, the specify the input file path using the `--input=<path to input data>` argument
+The required arguments are
+
+-`--db_user=<database user>`
+-`--db_pass=<database password>`
+-`--db_host=<database host>`
+-`--gcp_project_id=<project id>`
+-`--gcp_bucket_id=<bucket id>`
+
+The input file path can be specified using the optional `--input=<path to input data>` argument
 
 ## Deployment
 
-To deploy on GCP execute the `deploy.sh` scrpit. It requires the following variables:
+To deploy on GCP execute the `deploy.sh` script. It requires the following variables:
 - `GCP_REGION`
 - `GCP_PROJECT`
 - `GCP_ARTIFACT_REPO`

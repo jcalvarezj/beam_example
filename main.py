@@ -2,7 +2,8 @@
 
 import argparse, sys
 import apache_beam as beam
-from apache_beam.io import ReadFromText
+from apache_beam.io.gcp.internal.clients import bigquery
+from apache_beam.io import ReadFromText, WriteToBigQuery
 from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.io.mongodbio import WriteToMongoDB, ReadFromMongoDB
 
@@ -20,6 +21,8 @@ class CustomPipelineOptions(PipelineOptions):
         parser.add_value_provider_argument('--db_user')
         parser.add_value_provider_argument('--db_pass')
         parser.add_value_provider_argument('--db_host')
+        parser.add_value_provider_argument('--gcp_project_id')
+        parser.add_value_provider_argument('--gcp_bucket_id')
 
 
 def main():
@@ -48,6 +51,8 @@ def main():
     parser.add_argument('--db_pass', required=True)
     parser.add_argument('--db_host', required=True)
     parser.add_argument('--input', default='cars.csv')
+    parser.add_argument('--gcp_project_id', required=True)
+    parser.add_argument('--gcp_bucket_id', required=True)
     args, pipeline_args = parser.parse_known_args(sys.argv)
 
     pipeline_options = PipelineOptions(pipeline_args)
@@ -56,6 +61,12 @@ def main():
     with beam.Pipeline(options=custom_options) as pipeline:
         data_input = args.input
         db_uri = f"mongodb+srv://{args.db_user}:{args.db_pass}@{args.db_host}"
+
+        bq_table_specs = bigquery.TableReference(projectId=args.gcp_project_id,
+                                                 datasetId="cars_data",
+                                                 tableId="car_pricing")
+        bq_table_schema = "SCHEMA_AUTODETECT"
+        bq_temp_location = "gs://" + args.gcp_bucket_id + "/tmp"
 
         print("Obtaining MongoDB bonus prices table data")
         bonus_data = (pipeline
@@ -72,7 +83,7 @@ def main():
             | "Remove duplicates" >> beam.Distinct()
             | "Split by separator" >> beam.Map(lambda line: line.split(','))
             | "Convert to dict" >> beam.Map(convert_to_dict, col_indexes)
-            | "Filter expensive" >> beam.Filter(lambda record: int(record["price"]) >= 100000) ####### 7000
+            | "Filter expensive" >> beam.Filter(lambda record: int(record["price"]) >= 100000)
             | "Clean volume data" >> beam.Map(standardize_empty_numeric_field, ["volume"])
             | "De-hyphenate" >> beam.Map(dehyphenate))
         
@@ -82,7 +93,10 @@ def main():
 
         enriched_data = (valid_cars
             | "Join valid car data and bonus price" >> BonusJoinByType(bonus_data)
-            | beam.Map(print)
+            | "Remove unwanted columns" >> beam.Map(
+                lambda record: 
+                    {key: record[key] for key in record if key not in ["color", "segment", "_id"]}
+            )
         )
         
         print("Sinking cars with drive-unit")
@@ -97,6 +111,14 @@ def main():
             | "Sink invalid cars to MongoDB" >> WriteToMongoDB(uri=db_uri, db=db_name, coll="invalid_cars"))
         
         print(sink_invalid)
+
+        print("Sinking joined data")
+        sink_enriched = (enriched_data
+            | "Sink join-enriched cars to BigQuery" >> WriteToBigQuery(bq_table_specs,
+                                                                       schema=bq_table_schema,
+                                                                       custom_gcs_temp_location=bq_temp_location))
+        
+        print(sink_enriched)
 
     print("Finished")
 
