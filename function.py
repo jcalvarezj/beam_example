@@ -18,6 +18,7 @@ def process_file_upload(event, context):
             raise Exception("Cannot execute function. No DB env vars found")
 
         bucket = event['bucket']
+        project_id = bucket
         job_name = bucket + "-upload-etl-" + event['timeCreated'].replace(":", "-")
         template_path = "gs://" + bucket + "/dataflow_templates/cars-etl.json"
         input_file = "gs://" + bucket + "/" + file_name
@@ -26,7 +27,9 @@ def process_file_upload(event, context):
             "input": input_file,
             "db_user": db_user,
             "db_pass": db_pass,
-            "db_host": db_host
+            "db_host": db_host,
+            "gcp_project_id": project_id,
+            "gcp_bucket_id": bucket
         }
 
         environment_params = {"tempLocation": "gs://" + bucket + "/tmp"}
