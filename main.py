@@ -65,7 +65,22 @@ def main():
         bq_table_specs = bigquery.TableReference(projectId=args.gcp_project_id,
                                                  datasetId="cars_data",
                                                  tableId="car_pricing")
-        bq_table_schema = "SCHEMA_AUTODETECT"
+        bq_table_schema = {
+            "fields": [
+                {"name": "make", "type": "STRING", "mode": "REQUIRED"},
+                {"name": "model", "type": "STRING", "mode": "REQUIRED"},
+                {"name": "price", "type": "NUMERIC", "mode": "REQUIRED"},
+                {"name": "year", "type": "INTEGER", "mode": "REQUIRED"},
+                {"name": "condition", "type": "STRING", "mode": "REQUIRED"},
+                {"name": "mileage", "type": "NUMERIC", "mode": "REQUIRED"},
+                {"name": "fuel_type", "type": "STRING", "mode": "REQUIRED"},
+                {"name": "volume", "type": "NUMERIC", "mode": "NULLABLE"},
+                {"name": "transmission", "type": "STRING", "mode": "REQUIRED"},
+                {"name": "drive_unit", "type": "STRING", "mode": "REQUIRED"},
+                {"name": "bonus_type", "type": "STRING", "mode": "REQUIRED"},
+                {"name": "bonus_price", "type": "INTEGER", "mode": "REQUIRED"}
+            ]
+        }
         bq_temp_location = "gs://" + args.gcp_bucket_id + "/tmp"
 
         print("Obtaining MongoDB bonus prices table data")
@@ -83,7 +98,7 @@ def main():
             | "Remove duplicates" >> beam.Distinct()
             | "Split by separator" >> beam.Map(lambda line: line.split(','))
             | "Convert to dict" >> beam.Map(convert_to_dict, col_indexes)
-            | "Filter expensive" >> beam.Filter(lambda record: int(record["price"]) >= 100000)
+            | "Filter expensive" >> beam.Filter(lambda record: int(record["price"]) >= 7000)
             | "Clean volume data" >> beam.Map(standardize_empty_numeric_field, ["volume"])
             | "De-hyphenate" >> beam.Map(dehyphenate))
         
