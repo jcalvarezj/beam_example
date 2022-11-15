@@ -7,9 +7,9 @@ from apache_beam.io import ReadFromText, WriteToBigQuery
 from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.io.mongodbio import WriteToMongoDB, ReadFromMongoDB
 
-from pipeline_fns.pipeline_fns import *
-from do_fns.do_fns import FilterOutHeader
-from composite_transforms.transforms import BonusJoinByType
+from beam_example.pipeline_fns.pipeline_fns import *
+from beam_example.do_fns.do_fns import FilterOutHeader
+from beam_example.composite_transforms.transforms import BonusJoinByType
 
 class CustomPipelineOptions(PipelineOptions):
     """
@@ -50,7 +50,7 @@ def main():
     parser.add_argument('--db_user', required=True)
     parser.add_argument('--db_pass', required=True)
     parser.add_argument('--db_host', required=True)
-    parser.add_argument('--input', default='cars.csv')
+    parser.add_argument('--input', default='beam_example/cars.csv')
     parser.add_argument('--gcp_project_id', required=True)
     parser.add_argument('--gcp_bucket_id', required=True)
     args, pipeline_args = parser.parse_known_args(sys.argv)
@@ -98,7 +98,7 @@ def main():
             | "Remove duplicates" >> beam.Distinct()
             | "Split by separator" >> beam.Map(lambda line: line.split(','))
             | "Convert to dict" >> beam.Map(convert_to_dict, col_indexes)
-            | "Filter expensive" >> beam.Filter(lambda record: int(record["price"]) >= 7000)
+            | "Filter expensive" >> beam.Filter(lambda record: int(record["price"]) >= 100000)
             | "Clean volume data" >> beam.Map(standardize_empty_numeric_field, ["volume"])
             | "De-hyphenate" >> beam.Map(dehyphenate))
         
