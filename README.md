@@ -4,6 +4,8 @@ A small sketchpad for Apache Beam pipelines with Python to be used as Flex templ
 
 It uses the [Belarus Used Cars Prices](https://www.kaggle.com/datasets/slavapasedko/belarus-used-cars-prices) Kaggle dataset to perform transform operations on its data and load it onto MongoDB Atlas and Google BigQuery (using an already existing table on MongoDB to enrich clean and valid data)
 
+An IPython Notebook is included [CarsDataExploration.ipynb](CarsDataExploration.ipynb) that displays the data exploration drafts of the CSV dataset
+
 ## Execution
 
 Create a virtual environment and install the `apache_beam` and `dnspython` dependencies with PIP
