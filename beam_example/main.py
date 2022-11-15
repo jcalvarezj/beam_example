@@ -98,7 +98,7 @@ def main():
             | "Remove duplicates" >> beam.Distinct()
             | "Split by separator" >> beam.Map(lambda line: line.split(','))
             | "Convert to dict" >> beam.Map(convert_to_dict, col_indexes)
-            | "Filter expensive" >> beam.Filter(lambda record: int(record["price"]) >= 100000)
+            | "Filter expensive" >> beam.Filter(lambda record: int(record["price"]) >= 7000)
             | "Clean volume data" >> beam.Map(standardize_empty_numeric_field, ["volume"])
             | "De-hyphenate" >> beam.Map(dehyphenate))
         
