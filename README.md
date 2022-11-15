@@ -14,11 +14,11 @@ To run locally, execute the `main.py` script using
 
 The required arguments are
 
--`--db_user=<database user>`
--`--db_pass=<database password>`
--`--db_host=<database host>`
--`--gcp_project_id=<project id>`
--`--gcp_bucket_id=<bucket id>`
+- `--db_user=<database user>`
+- `--db_pass=<database password>`
+- `--db_host=<database host>`
+- `--gcp_project_id=<project id>`
+- `--gcp_bucket_id=<bucket id>`
 
 The input file path can be specified using the optional `--input=<path to input data>` argument
 
