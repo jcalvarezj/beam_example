@@ -50,7 +50,7 @@ def main():
     parser.add_argument('--db_user', required=True)
     parser.add_argument('--db_pass', required=True)
     parser.add_argument('--db_host', required=True)
-    parser.add_argument('--input', default='beam_example/cars.csv')
+    parser.add_argument('--input', default="beam_example/cars.csv")
     parser.add_argument('--gcp_project_id', required=True)
     parser.add_argument('--gcp_bucket_id', required=True)
     args, pipeline_args = parser.parse_known_args(sys.argv)

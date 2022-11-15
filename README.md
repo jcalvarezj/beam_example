@@ -2,7 +2,7 @@
 
 A small sketchpad for Apache Beam pipelines with Python to be used as Flex template for Google Cloud Dataflow
 
-It uses the [Belarus Used Cars Prices](https://www.kaggle.com/datasets/slavapasedko/belarus-used-cars-prices) Kaggle dataset to perform transform operations on its data and load it onto MongoDB Atlas
+It uses the [Belarus Used Cars Prices](https://www.kaggle.com/datasets/slavapasedko/belarus-used-cars-prices) Kaggle dataset to perform transform operations on its data and load it onto MongoDB Atlas and Google BigQuery (using an already existing table on MongoDB to enrich clean and valid data)
 
 ## Execution
 
