@@ -19,7 +19,7 @@ def process_file_upload(event, context):
 
         bucket = event['bucket']
         project_id = bucket
-        job_name = bucket + "-upload-etl-" + event['timeCreated'].replace(":", "-")
+        job_name = bucket + "-upload-etl-" + context.event_id
         template_path = "gs://" + bucket + "/dataflow_templates/cars-etl.json"
         input_file = "gs://" + bucket + "/" + file_name
 
