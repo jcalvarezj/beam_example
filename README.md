@@ -10,7 +10,7 @@ Create a virtual environment and install the `apache_beam` and `dnspython` depen
 
 To run locally, execute the `main.py` script using
 
-`python main.py <arguments>`
+`python beam_example/main.py <arguments>`
 
 The required arguments are
 
