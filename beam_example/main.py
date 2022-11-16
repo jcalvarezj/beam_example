@@ -27,7 +27,7 @@ class CustomPipelineOptions(PipelineOptions):
 
 def main():
     """
-        Entry point of the Beam application
+    Entry point of the Beam application
     """
     col_indexes = {
         "make": 0,

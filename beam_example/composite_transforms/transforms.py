@@ -5,21 +5,20 @@ import apache_beam as beam
 
 class BonusJoinByType(beam.PTransform):
     """
-        PTransform that joins relationally valid car data and bonus price data
+    PTransform that joins relationally valid car data and bonus price data
     """
     def __init__(self, bonus_prices_coll):
         self.bonus_prices_coll = bonus_prices_coll
     
     def _convert_to_common_key_structure(self, record, key):
         """
-            Returns a tuple of a record's common join key's value (bonus
-            type) mapped to the record's data
+        Returns a tuple of a record's common join key's value (bonus type) mapped to the record's data
         """
         return record[key], record
 
     def _unnest_cogroup(self, element):
         """
-            Returns the CoGroup element's data formatted as a list of dicts to be flattened
+        Returns the CoGroup element's data formatted as a list of dicts to be flattened
         """
         car_data = element[1][0]
         bonus_data = element[1][1][0]
@@ -33,7 +32,7 @@ class BonusJoinByType(beam.PTransform):
 
     def expand(self, valid_cars_coll):
         """
-            Returns the pipeline operations of this PTransform
+        Returns the pipeline operations of this PTransform
         """
         valid_cars_map = (valid_cars_coll
             | "Bonus Join - Map Valid" >> beam.Map(self._convert_to_common_key_structure, "drive_unit"))

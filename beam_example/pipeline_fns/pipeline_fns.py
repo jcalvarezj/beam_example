@@ -2,7 +2,7 @@
 
 def convert_to_dict(line_fields, col_indexes):
     """
-        Transforms the line_fields element to a dictionary
+    Transforms the line_fields element to a dictionary
     """
     make = line_fields[col_indexes["make"]]
     volume = line_fields[col_indexes["volume"]]
