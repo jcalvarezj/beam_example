@@ -81,7 +81,6 @@ def main():
                 {"name": "bonus_price", "type": "INTEGER", "mode": "REQUIRED"}
             ]
         }
-        # bq_table_schema = "SCHEMA_AUTODETECT"
         bq_temp_location = "gs://" + args.gcp_bucket_id + "/tmp"
 
         print("Obtaining MongoDB bonus prices table data")
@@ -112,7 +111,7 @@ def main():
                     {key: record[key] for key in record if key not in ["color", "segment", "_id"]}
             )
         )
-        
+
         print("Sinking cars with drive-unit")
         sink_valid = (valid_cars
             | "Sink valid cars to MongoDB" >> WriteToMongoDB(uri=db_uri, db=db_name, coll="valid_cars"))
