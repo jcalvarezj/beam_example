@@ -1,20 +1,13 @@
 # Functions used in pipeline tranformations
 
-def dehyphenate(record):
-    """
-        Removes hyphens of a record's make field, replacing them with spaces
-    """
-    record["make"] = record["make"].replace("-", " ")
-    return record
-
-
 def convert_to_dict(line_fields, col_indexes):
     """
         Transforms the line_fields element to a dictionary
     """
+    make = line_fields[col_indexes["make"]]
     volume = line_fields[col_indexes["volume"]]
     return {
-        "make": line_fields[col_indexes["make"]],
+        "make": make.replace("-", " "),
         "model": line_fields[col_indexes["model"]],
         "price": int(line_fields[col_indexes["price"]]),
         "year": int(line_fields[col_indexes["year"]]),
