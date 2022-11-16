@@ -10,7 +10,7 @@ An IPython Notebook is included [CarsDataExploration.ipynb](CarsDataExploration.
 
 Create a virtual environment and install the `apache_beam` and `dnspython` dependencies with PIP
 
-To run locally, execute the `main.py` script using
+To run locally, execute the [main.py](beam_example/main.py) script using
 
 `python beam_example/main.py <arguments>`
 
